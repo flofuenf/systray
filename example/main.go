@@ -49,12 +49,14 @@ func onReady() {
 		mQuit.SetIcon(icon.Data)
 
 		systray.AddSeparator()
-		mToggle := systray.AddMenuItem("Toggle", "Toggle the Quit button")
+		mShowHide := systray.AddMenuItem("Hide", "Hide a few menu items")
 		shown := true
+		changed := 0
 		for {
 			select {
 			case <-mChange.ClickedCh:
-				mChange.SetTitle("I've Changed")
+				changed++
+				mChange.SetTitle(fmt.Sprintf("I've Changed %d time(s)", changed))
 			case <-mChecked.ClickedCh:
 				if mChecked.Checked() {
 					mChecked.Uncheck()
@@ -68,14 +70,18 @@ func onReady() {
 				mEnabled.Disable()
 			case <-mUrl.ClickedCh:
 				open.Run("https://www.getlantern.org")
-			case <-mToggle.ClickedCh:
+			case <-mShowHide.ClickedCh:
 				if shown {
 					mQuitOrig.Hide()
 					mEnabled.Hide()
+					mShowHide.SetTitle("Show")
+					mShowHide.SetTooltip("Show previously hidden menu items")
 					shown = false
 				} else {
 					mQuitOrig.Show()
 					mEnabled.Show()
+					mShowHide.SetTitle("Hide")
+					mShowHide.SetTooltip("Hide a few menu items")
 					shown = true
 				}
 			case <-mQuit.ClickedCh:

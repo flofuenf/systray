@@ -462,26 +462,21 @@ func (t *winTray) addOrUpdateMenuItem(menuId int32, title string, disabled, chec
 	}
 	mi.Size = uint32(unsafe.Sizeof(mi))
 
-	// The return value is the identifier of the specified menu item.
-	// If the menu item identifier is NULL or if the specified item opens a submenu, the return value is -1.
-	// If the given menu identifier is not found (becase we deleted the menu item when hiding it),
-	// the call will return the next integer that is available as an existing menu item.
-	res, _, err := pGetMenuItemID.Call(uintptr(t.menu), uintptr(menuId))
-	if int32(res) == -1 || int32(res) != menuId {
+	// We set the menu item info based on the menuID
+	res, _, err := pSetMenuItemInfo.Call(
+		uintptr(t.menu),
+		uintptr(menuId),
+		0,
+		uintptr(unsafe.Pointer(&mi)),
+	)
+	if res == 0 {
+		// We insert the menu item using the menuID as a position. This is
+		// important because hidden items will end up here when shown again, so
+		// this ensures that their position stays consistent.
 		res, _, err = pInsertMenuItem.Call(
 			uintptr(t.menu),
 			uintptr(menuId),
 			1,
-			uintptr(unsafe.Pointer(&mi)),
-		)
-		if res == 0 {
-			return err
-		}
-	} else {
-		res, _, err = pSetMenuItemInfo.Call(
-			uintptr(t.menu),
-			uintptr(menuId),
-			0,
 			uintptr(unsafe.Pointer(&mi)),
 		)
 		if res == 0 {

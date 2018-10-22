@@ -226,13 +226,6 @@ func (t *winTray) setTooltip(src string) error {
 	return t.nid.modify()
 }
 
-// ClickEvent constants
-const (
-	WMRButtonUp     ClickEvent = 0x0205
-	WMLButtonUp     ClickEvent = 0x0202
-	WMLButtonDblClk ClickEvent = 0x0203
-)
-
 const (
 	wmCommand    = 0x0111
 	wmDestroy    = 0x0002

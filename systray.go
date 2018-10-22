@@ -41,6 +41,13 @@ type MenuItem struct {
 //ClickEvent defines a click event type
 type ClickEvent uintptr
 
+// ClickEvent constants
+const (
+	WMRButtonUp     ClickEvent = 0x0205
+	WMLButtonUp     ClickEvent = 0x0202
+	WMLButtonDblClk ClickEvent = 0x0203
+)
+
 var openMenuEvents = map[ClickEvent]func() error{}
 
 var (

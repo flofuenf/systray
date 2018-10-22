@@ -226,37 +226,47 @@ func (t *winTray) setTooltip(src string) error {
 	return t.nid.modify()
 }
 
+//ClickEvent defines a click event type
+type ClickEvent uintptr
+
+// ClickEvent constants
+const (
+	WMRButtonUp     ClickEvent = 0x0205
+	WMLButtonUp     ClickEvent = 0x0202
+	WMLButtonDblClk ClickEvent = 0x0203
+)
+
+const (
+	wmCommand    = 0x0111
+	wmDestroy    = 0x0002
+	wmEndsession = 0x16
+)
+
+var openMenuEvents = map[ClickEvent]func() error{}
+
 var wt winTray
 
 // WindowProc callback function that processes messages sent to a window.
 // https://msdn.microsoft.com/en-us/library/windows/desktop/ms633573(v=vs.85).aspx
 func (t *winTray) wndProc(hWnd windows.Handle, message uint32, wParam, lParam uintptr) (lResult uintptr) {
-	const (
-		WM_COMMAND    = 0x0111
-		WM_DESTROY    = 0x0002
-		WM_ENDSESSION = 0x16
-		WM_RBUTTONUP  = 0x0205
-		WM_LBUTTONUP  = 0x0202
-	)
 	switch message {
-	case WM_COMMAND:
+	case wmCommand:
 		menuId := int32(wParam)
 		if menuId != -1 {
 			systrayMenuItemSelected(menuId)
 		}
-	case WM_DESTROY:
-		// same as WM_ENDSESSION, but throws 0 exit code after all
+	case wmDestroy:
+		// same as wmEndsession, but throws 0 exit code after all
 		defer pPostQuitMessage.Call(uintptr(int32(0)))
 		fallthrough
-	case WM_ENDSESSION:
+	case wmEndsession:
 		if t.nid != nil {
 			t.nid.delete()
 		}
 		systrayExit()
 	case t.wmSystrayMessage:
-		switch lParam {
-		case WM_RBUTTONUP, WM_LBUTTONUP:
-			t.showMenu()
+		if f, ok := openMenuEvents[ClickEvent(lParam)]; ok {
+			f()
 		}
 	case t.wmTaskbarCreated: // on explorer.exe restarts
 		t.nid.add()
@@ -304,6 +314,9 @@ func (t *winTray) initInstance() error {
 		className  = "SystrayClass"
 		windowName = ""
 	)
+
+	openMenuEvents[WMRButtonUp] = t.showMenu
+	openMenuEvents[WMLButtonUp] = t.showMenu
 
 	t.wmSystrayMessage = WM_USER + 1
 

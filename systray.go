@@ -105,6 +105,17 @@ func AddSeparator() {
 	addSeparator(atomic.AddInt32(&currentID, 1))
 }
 
+//SetTrayIconClick sets a function to execute on a menu item event.
+//By default the internal showmenu function is set to left and right click.
+//Unset that by setting it to nil.
+func SetTrayIconClick(clickType ClickEvent, f func() error) {
+	if f == nil {
+		delete(openMenuEvents, clickType)
+		return
+	}
+	openMenuEvents[clickType] = f
+}
+
 // SetTitle set the text to display on a menu item
 func (item *MenuItem) SetTitle(title string) {
 	item.title = title

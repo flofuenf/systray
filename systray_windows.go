@@ -226,9 +226,6 @@ func (t *winTray) setTooltip(src string) error {
 	return t.nid.modify()
 }
 
-//ClickEvent defines a click event type
-type ClickEvent uintptr
-
 // ClickEvent constants
 const (
 	WMRButtonUp     ClickEvent = 0x0205
@@ -241,8 +238,6 @@ const (
 	wmDestroy    = 0x0002
 	wmEndsession = 0x16
 )
-
-var openMenuEvents = map[ClickEvent]func() error{}
 
 var wt winTray
 

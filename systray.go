@@ -38,6 +38,11 @@ type MenuItem struct {
 	checked bool
 }
 
+//ClickEvent defines a click event type
+type ClickEvent uintptr
+
+var openMenuEvents = map[ClickEvent]func() error{}
+
 var (
 	log = golog.LoggerFor("systray")
 

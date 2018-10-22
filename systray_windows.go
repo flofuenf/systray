@@ -624,6 +624,7 @@ func quit() {
 		0,
 		0,
 	)
+	SetIcon(nil)
 }
 
 // SetIcon sets the systray icon.

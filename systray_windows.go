@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"syscall"
+	"time"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -624,7 +625,9 @@ func quit() {
 		0,
 		0,
 	)
-	SetIcon(nil)
+
+	// wait for windows to remove icon properly from taskbar
+	time.Sleep(50 * time.Millisecond)
 }
 
 // SetIcon sets the systray icon.
